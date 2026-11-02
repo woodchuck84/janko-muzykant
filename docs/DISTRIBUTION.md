@@ -4,7 +4,14 @@
 
 Docelowe repozytorium: **woodchuck84/janko-muzykant**; strona:
 `https://woodchuck84.github.io/janko-muzykant/`. To adres docelowy, a stan wdrożenia
-sprawdza się w Actions. Publikacja jest autoryzowana wyłącznie na koncie osobistym.
+sprawdza się w Actions. [Pierwszy workflow zakończył się sukcesem](https://github.com/woodchuck84/janko-muzykant/actions/runs/41542201890).
+[APK 0.1.7 / kod 8 jest w Releases](https://github.com/woodchuck84/janko-muzykant/releases/tag/v0.1.7),
+z zachowanym podpisem aktualizacji. SHA-256:
+`69f68cb224ff9c90750d3a13e2853cecc4b55ee119eb7b8181e361a3ad3d904a`.
+**Nie skonfigurowano jeszcze źródła Drive dla Windows PWA.** Instalacja PWA jest
+dostępna, ale synchronizacja biblioteki wymaga klucza/proxy i ponownego buildu.
+Strona główna i aplikacja jawnie to komunikują. APK czyta publiczny Drive niezależnie.
+Publikacja jest autoryzowana wyłącznie na koncie osobistym.
 Nie używaj konta służbowego do tej aplikacji. Jeśli środowisko narzuca token służbowy,
 usuń `GH_TOKEN` i `GITHUB_TOKEN` z bieżącego procesu, ustaw
 `GH_CONFIG_DIR=$env:USERPROFILE\.config\gh-janko-personal` i
@@ -128,7 +135,11 @@ i publikacji sprawdź w repozytorium, w zakładce Actions; lokalny test go nie z
 
 The authorized publication target is the personal repository
 `woodchuck84/janko-muzykant`, with Pages at
-`https://woodchuck84.github.io/janko-muzykant/`. Check Actions for deployment status.
+`https://woodchuck84.github.io/janko-muzykant/`. The initial Pages workflow succeeded
+and Android 0.1.7 / code 8 is available in Releases with the existing update signature.
+**Windows Drive sync remains unconfigured** until the distributor supplies a
+restricted API key or their own proxy and rebuilds Pages. The installable PWA and
+homepage explain this; native Android public Drive reads are independent.
 Use only your personal account and confirm it with `gh api user --jq .login`;
 clear injected work-account tokens and use the isolated personal CLI configuration.
 `Publish-GitHub.ps1 -Repository PERSONAL-USER/janko-muzykant` displays the active

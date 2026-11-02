@@ -13,10 +13,14 @@ online-only and requires owner-supplied Google/Cloudflare configuration.
 
 ## One-link Android and Windows distribution
 
-**GitHub Pages + Releases is now prepared**, with a guarded
-`Publish-GitHub.ps1` / `npm run github:publish` and an Actions workflow.
-The authorized target is `woodchuck84/janko-muzykant`; use **personal**, not work,
-GitHub credentials and check Actions for the actual deployment status.
+**Published on the personal account:** [install/download page](https://woodchuck84.github.io/janko-muzykant/),
+[Android 0.1.7 release](https://github.com/woodchuck84/janko-muzykant/releases/tag/v0.1.7)
+and [successful initial Pages workflow](https://github.com/woodchuck84/janko-muzykant/actions/runs/41542201890).
+**Windows Drive sync is not configured yet:** the distributor must add a restricted
+Drive API key or their own Cloudflare proxy and rebuild Pages. The homepage and
+PWA show this limitation; Android's native public Drive access is independent.
+Use **personal**, not work, GitHub credentials for future updates via the guarded
+`Publish-GitHub.ps1` / `npm run github:publish`.
 The [step-by-step PL/EN instructions](docs/DISTRIBUTION.md#github-pages--zalecana-publikacja-z-github-releases-pl)
 explain the public repository, one-time referrer-restricted Drive API key (or optional
 Cloudflare proxy), local APK signing and the final link to share.
