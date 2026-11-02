@@ -9,7 +9,8 @@ export default defineConfig({
   root: 'web-standalone',
   base,
   publicDir: '../public',
-  define: { 'import.meta.env.VITE_JANKO_PLATFORM': JSON.stringify('web-standalone') },
+  define: { 'import.meta.env.VITE_JANKO_PLATFORM': JSON.stringify('web-standalone'),
+    'import.meta.env.VITE_GOOGLE_DRIVE_API_KEY': JSON.stringify('') },
   plugins: [{ name: 'standalone-local-fonts', enforce: 'pre', transform(source, id) {
     if (id.replaceAll('\\', '/').endsWith('/src/style.css'))
       return source.replace(/^@import[^\n]*fonts\.googleapis\.com[^\n]*\r?\n/m, '')

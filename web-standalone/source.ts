@@ -74,7 +74,7 @@ export class PublicDriveSource {
       return this.get(url.href)
     }
     if (!this.key) return fail('SOURCE_NOT_CONFIGURED',
-      'Dystrybutor nie skonfigurował źródła Drive. Ustaw VITE_GOOGLE_DRIVE_API_KEY lub VITE_JANKO_DRIVE_PROXY_URL i opublikuj ponownie. Odbiorcy nie muszą nic konfigurować.')
+      'Dystrybutor nie skonfigurował źródła Drive. Wersja web nie używa klucza Google API. Własne proxy wymaga osobnego wdrożenia przez dystrybutora; Android działa bez niego.')
     let item: Entry = { id: ROOT, name: 'Chór', mimeType: FOLDER }, parent = ROOT
     for (let index = 1; index <= path.length; index++) {
       const target = index === path.length ? id : path[index]

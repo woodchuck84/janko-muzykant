@@ -40,7 +40,6 @@ jobs:
         env:
           VITE_JANKO_GITHUB: 'true'
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-          VITE_GOOGLE_DRIVE_API_KEY: ${{ secrets.VITE_GOOGLE_DRIVE_API_KEY || vars.VITE_GOOGLE_DRIVE_API_KEY }}
           VITE_JANKO_DRIVE_PROXY_URL: ${{ vars.VITE_JANKO_DRIVE_PROXY_URL }}
         run: npm run web:build
       - uses: actions/upload-pages-artifact@v3

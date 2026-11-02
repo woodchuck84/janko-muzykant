@@ -1,6 +1,5 @@
 param(
     [string]$Repository,
-    [Security.SecureString]$DriveApiKey,
     [string]$DriveProxyUrl,
     [switch]$ReleaseOnly,
     [switch]$Force
@@ -43,17 +42,6 @@ if ($script:optionalExit -ne 0) {
 } elseif (($existing | ConvertFrom-Json).visibility -ne 'PUBLIC') { throw 'Repository must be public for the free Pages setup. No visibility was changed.' }
 $remote = "https://github.com/$Repository.git"
 if (-not $ReleaseOnly) {
-    if (-not $DriveApiKey -and -not $DriveProxyUrl) {
-        $DriveApiKey = Read-Host 'Drive API key (hidden; Enter skips, but Drive will need a configured proxy)' -AsSecureString
-    }
-    if ($DriveApiKey -and $DriveApiKey.Length -gt 0) {
-        $ptr = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($DriveApiKey)
-        try {
-            # Pipe through stdin rather than exposing the key in command-line process arguments.
-            [Runtime.InteropServices.Marshal]::PtrToStringBSTR($ptr) | & gh secret set VITE_GOOGLE_DRIVE_API_KEY --repo $Repository
-            if ($LASTEXITCODE -ne 0) { throw 'Could not set Drive API-key repository secret.' }
-        } finally { [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($ptr) }
-    }
     if ($DriveProxyUrl) {
         $proxy = [Uri]$DriveProxyUrl
         if ($proxy.Scheme -ne 'https' -or $proxy.UserInfo -or $proxy.Query -or $proxy.Fragment) { throw 'Proxy URL must be HTTPS without credentials/query/fragment.' }

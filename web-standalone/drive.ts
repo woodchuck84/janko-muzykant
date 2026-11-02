@@ -31,8 +31,8 @@ async function stateStore(key: string, value?: string) {
   } finally { db.close() }
 }
 export class BrowserDrive implements NativeDrive {
-  private source = new PublicDriveSource(import.meta.env.VITE_GOOGLE_DRIVE_API_KEY ?? '',
-    import.meta.env.VITE_JANKO_DRIVE_PROXY_URL ?? (import.meta.env.VITE_JANKO_GITHUB === 'true' || import.meta.env.VITE_GOOGLE_DRIVE_API_KEY ? '' : `${BASE}api/drive`))
+  private source = new PublicDriveSource('',
+    import.meta.env.VITE_JANKO_DRIVE_PROXY_URL ?? (import.meta.env.VITE_JANKO_GITHUB === 'true' ? '' : `${BASE}api/drive`))
   private paths: Record<string, string[]> = { [ROOT]: [] }
   private account(): Account { return { id: ID, email: 'Publiczna biblioteka · ten profil przeglądarki', anonymous: true,
     lastVerified: Number(localStorage.getItem('janko.web.lastVerified') ?? 0) } }

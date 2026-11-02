@@ -2,7 +2,7 @@ import './landing.css'
 import { validApkUrl } from '../src/distribution'
 const base = import.meta.env.BASE_URL
 const sourceMissing = import.meta.env.VITE_JANKO_GITHUB === 'true' &&
-  !import.meta.env.VITE_GOOGLE_DRIVE_API_KEY && !import.meta.env.VITE_JANKO_DRIVE_PROXY_URL
+  !import.meta.env.VITE_JANKO_DRIVE_PROXY_URL
 const root = document.getElementById('root')!
 root.innerHTML = `<header><img src="/icon-192.png" alt="Trzej rozśpiewani chórzyści Vox Apostoli" width="104" height="104"/><div><span class="eyebrow">VOX APOSTOLI · TWOJA PRACOWNIA CHÓRALNA</span><h1>Posłuchaj. Powtórz.<br/>Zaśpiewaj.</h1></div></header>
 <p class="lead">Janko Muzykant — nuty, nagrania i spokojne ćwiczenie własnej partii. Na telefonie i komputerze, bez uruchamiania własnego serwera.</p>
@@ -20,7 +20,7 @@ if (sourceMissing) {
   const warning = document.createElement('p')
   warning.id = 'drive-source-notice'
   warning.setAttribute('role', 'status')
-  warning.textContent = 'Windows PWA: biblioteka Drive nie jest jeszcze gotowa. Dystrybutor musi skonfigurować źródło publicznych plików (Drive API lub własne proxy) i opublikować stronę ponownie. Instalator Android działa niezależnie i korzysta z publicznego Drive bez tego ustawienia.'
+  warning.textContent = 'Windows PWA: biblioteka Drive nie jest jeszcze gotowa. Ta wersja nie używa klucza Google API. Dostęp w przeglądarce wymaga własnego proxy dystrybutora, którego jeszcze nie uruchomiono. Instalator Android działa niezależnie i korzysta z publicznego Drive bez klucza.'
   document.querySelector('#windows h2')!.after(warning)
 }
 if (/android/i.test(navigator.userAgent)) document.getElementById('android')!.classList.add('recommended')
