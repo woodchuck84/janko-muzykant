@@ -15,7 +15,8 @@ online-only and requires owner-supplied Google/Cloudflare configuration.
 
 **GitHub Pages + Releases is now prepared**, with a guarded
 `Publish-GitHub.ps1` / `npm run github:publish` and an Actions workflow.
-Nothing has been pushed: first log `gh` into your **personal**, not work, account.
+The authorized target is `woodchuck84/janko-muzykant`; use **personal**, not work,
+GitHub credentials and check Actions for the actual deployment status.
 The [step-by-step PL/EN instructions](docs/DISTRIBUTION.md#github-pages--zalecana-publikacja-z-github-releases-pl)
 explain the public repository, one-time referrer-restricted Drive API key (or optional
 Cloudflare proxy), local APK signing and the final link to share.

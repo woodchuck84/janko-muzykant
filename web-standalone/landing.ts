@@ -1,6 +1,8 @@
 import './landing.css'
 import { validApkUrl } from '../src/distribution'
 const base = import.meta.env.BASE_URL
+const sourceMissing = import.meta.env.VITE_JANKO_GITHUB === 'true' &&
+  !import.meta.env.VITE_GOOGLE_DRIVE_API_KEY && !import.meta.env.VITE_JANKO_DRIVE_PROXY_URL
 const root = document.getElementById('root')!
 root.innerHTML = `<header><img src="/icon-192.png" alt="Trzej rozśpiewani chórzyści Vox Apostoli" width="104" height="104"/><div><span class="eyebrow">VOX APOSTOLI · TWOJA PRACOWNIA CHÓRALNA</span><h1>Posłuchaj. Powtórz.<br/>Zaśpiewaj.</h1></div></header>
 <p class="lead">Janko Muzykant — nuty, nagrania i spokojne ćwiczenie własnej partii. Na telefonie i komputerze, bez uruchamiania własnego serwera.</p>
@@ -14,6 +16,13 @@ for (const element of root.querySelectorAll<HTMLAnchorElement | HTMLImageElement
 root.querySelector('.boundaries p:nth-of-type(2)')!.textContent =
   'PWA pobiera publiczne materiały przez Google Drive API lub skonfigurowane proxy Cloudflare (w tym wariancie Cloudflare przesyła pliki). Ćwiczenia, analiza MusicXML, generowanie WAV, nagrania i postępy pozostają w tej przeglądarce. Nie synchronizują się automatycznie z APK ani innym komputerem. PWA: do 25 MiB na plik.'
 document.getElementById('apk')!.removeAttribute('href')
+if (sourceMissing) {
+  const warning = document.createElement('p')
+  warning.id = 'drive-source-notice'
+  warning.setAttribute('role', 'status')
+  warning.textContent = 'Windows PWA: biblioteka Drive nie jest jeszcze gotowa. Dystrybutor musi skonfigurować źródło publicznych plików (Drive API lub własne proxy) i opublikować stronę ponownie. Instalator Android działa niezależnie i korzysta z publicznego Drive bez tego ustawienia.'
+  document.querySelector('#windows h2')!.after(warning)
+}
 if (/android/i.test(navigator.userAgent)) document.getElementById('android')!.classList.add('recommended')
 else document.getElementById('windows')!.classList.add('recommended')
 void fetch(`${base}version.json`, { cache: 'no-store' }).then(async response => {

@@ -2,8 +2,13 @@
 
 ## GitHub Pages — zalecana publikacja z GitHub Releases (PL)
 
-**Przygotowano lokalnie, ale niczego nie wysłano do GitHuba.** Obecna sesja `gh`
-jest zalogowana na `roman-kapela_volvo`; nie używaj konta służbowego do tej aplikacji.
+Docelowe repozytorium: **woodchuck84/janko-muzykant**; strona:
+`https://woodchuck84.github.io/janko-muzykant/`. To adres docelowy, a stan wdrożenia
+sprawdza się w Actions. Publikacja jest autoryzowana wyłącznie na koncie osobistym.
+Nie używaj konta służbowego do tej aplikacji. Jeśli środowisko narzuca token służbowy,
+usuń `GH_TOKEN` i `GITHUB_TOKEN` z bieżącego procesu, ustaw
+`GH_CONFIG_DIR=$env:USERPROFILE\.config\gh-janko-personal` i
+`GIT_CONFIG_GLOBAL=$env:GH_CONFIG_DIR\gitconfig`, a następnie sprawdź login.
 Skrypt blokuje nazwy kont zawierające `volvo` (chyba że świadomie podasz `-Force`),
 wyświetla aktywny login i wymaga dwukrotnego wskazania własnego `owner/repository`.
 Nie przełącza kont za Ciebie. Repozytorium i kod będą **publiczne**, ponieważ to
@@ -116,14 +121,16 @@ braku OMR i logowania w PWA oraz niegwarantowanej pracy w tle opisane niżej.
 Lokalne testy pod `/janko-test/` obejmują stronę, manifest, zakres SW, publiczny
 adapter API z mockami, audio/PDF offline i brak odwołań do korzenia hosta.
 Nie zastępują próby z rzeczywistym kluczem/referrerem po publikacji.
-Skrypt publikujący ma sprawdzoną składnię i blokadę konta, ale nie wykonano jego
-operacji zdalnych ani buildu Actions na GitHub. Brak faktycznej publikacji jest zamierzony.
+Skrypt publikujący ma sprawdzoną składnię i blokadę konta. Wynik zdalnego buildu
+i publikacji sprawdź w repozytorium, w zakładce Actions; lokalny test go nie zastępuje.
 
 ## GitHub Pages + Releases (EN)
 
-Prepared locally only: no repository, push, release or Pages site was created.
-The current CLI account looks work-related (`roman-kapela_volvo`); log into your
-personal account and confirm it with `gh api user --jq .login`.
+The authorized publication target is the personal repository
+`woodchuck84/janko-muzykant`, with Pages at
+`https://woodchuck84.github.io/janko-muzykant/`. Check Actions for deployment status.
+Use only your personal account and confirm it with `gh api user --jq .login`;
+clear injected work-account tokens and use the isolated personal CLI configuration.
 `Publish-GitHub.ps1 -Repository PERSONAL-USER/janko-muzykant` displays the active
 account, rejects `volvo` names unless deliberately overridden with `-Force`, and
 requires exact repository confirmation. Code will become public. Review it first.
@@ -154,7 +161,7 @@ With neither configured the app shows an explicit distributor-configuration erro
 Only public content is accessible; no permission transfer and no Drive writes.
 
 Subpath desktop/phone tests cover landing links, manifest/SW scope and offline
-PDF/audio using mocked API responses. No remote workflow/deployment was run.
+PDF/audio using mocked API responses. Check Actions for the remote workflow result.
 Pages soft bandwidth is typically 100 GB/month, site size about 1 GB; confirm current
 GitHub limits. APK stays in Releases. Drive quotas are separate. Browser storage,
 25 MiB/material, no PWA OAuth/OMR and background-playback limits still apply.
