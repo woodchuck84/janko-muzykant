@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <group android:pivotX="54" android:pivotY="54" android:scaleX="0.8" android:scaleY="0.8">
+        <path android:fillColor="#ffffff" android:fillType="evenOdd" android:pathData="M45 51A10 10 0 1 1 25 51A10 10 0 1 1 45 51Z M30 48H33V51H30Z M37 48H40V51H37Z M38 56A3 4 0 1 1 32 56A3 4 0 1 1 38 56Z"/>
+        <path android:fillColor="#ffffff" android:fillType="evenOdd" android:pathData="M65 43A11 11 0 1 1 43 43A11 11 0 1 1 65 43Z M48 40H51V43H48Z M57 40H60V43H57Z M58 48A4 5 0 1 1 50 48A4 5 0 1 1 58 48Z"/>
+        <path android:fillColor="#ffffff" android:fillType="evenOdd" android:pathData="M83 51A10 10 0 1 1 63 51A10 10 0 1 1 83 51Z M68 48H71V51H68Z M75 48H78V51H75Z M76 56A3 4 0 1 1 70 56A3 4 0 1 1 76 56Z"/>
+        <path android:fillColor="#ffffff" android:fillType="nonZero" android:pathData="M27 67Q39 62 52 68V82Q39 76 27 80Z M56 68Q69 62 81 67V80Q69 76 56 82Z"/>
+        <path android:fillColor="#ffffff" android:fillType="nonZero" android:pathData="M69 26L79 23V28L73 30V36C73 41 65 42 65 38C65 35 68 34 69 35Z"/>
+        <path android:fillColor="#ffffff" android:fillType="nonZero" android:pathData="M31 29H33V32H36V34H33V37H31V34H28V32H31Z"/>
+    </group>
+</vector>

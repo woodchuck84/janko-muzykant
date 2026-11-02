@@ -1,0 +1,71 @@
+services:
+  app:
+    build:
+      context: .
+      args:
+        AUDIVERIS_VERSION: ${AUDIVERIS_VERSION:-5.11.0}
+    image: janko-muzykant:local
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 30s
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - janko-data:/data
+    environment:
+      JANKO_DATA: /data
+      JANKO_HOSTED: ${JANKO_HOSTED:-true}
+      JANKO_PUBLIC_URL: ${JANKO_PUBLIC_URL:-https://choir.example.com}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      JANKO_DRIVE_ROOT_ID: ${JANKO_DRIVE_ROOT_ID:-1fESe16CVAh9JBpNKw2_ucmKPAn7NbPtQ}
+      JANKO_ADMIN_EMAILS: ${JANKO_ADMIN_EMAILS:-}
+      JANKO_ALLOWED_EMAILS: ${JANKO_ALLOWED_EMAILS:-}
+      JANKO_SESSION_DAYS: ${JANKO_SESSION_DAYS:-7}
+      AUDIVERIS_COMMAND: /opt/audiveris/bin/Audiveris
+      AUDIVERIS_TIMEOUT: ${AUDIVERIS_TIMEOUT:-900}
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      start_period: 45s
+      retries: 3
+    mem_limit: 4g
+    cpus: 2.0
+    read_only: true
+    tmpfs:
+      # Audiveris JNA/JavaCPP extracts native libraries here; noexec prevents loading them.
+      - /tmp:size=512m,mode=1777,exec
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    profiles:
+      - tunnel
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_healthy
+    command:
+      - tunnel
+      - --no-autoupdate
+      - run
+      - --token
+      - ${CLOUDFLARE_TUNNEL_TOKEN:-}
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  janko-data:

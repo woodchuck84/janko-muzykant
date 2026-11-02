@@ -1,0 +1,7 @@
+name = "janko-muzykant"
+pages_build_output_dir = "dist-web"
+compatibility_date = "2026-10-01"
+
+# Optional production reinforcement, configured in Cloudflare's dashboard:
+# a Rate Limiting binding named DRIVE_RATE_LIMIT (240 requests / 60 seconds).
+# Without it the proxy still enforces a bounded in-memory per-isolate limiter.

@@ -1,0 +1,49 @@
+.app-shell.has-practice-player{padding-bottom:190px}
+.app-shell .persistent-player .player{padding:0}
+.app-shell .persistent-player .player-controls{position:fixed;left:270px;right:16px;bottom:0;padding:12px 18px;background:#fdfef9;border:1px solid #c9d6c3;border-radius:12px 12px 0 0;box-shadow:0 -4px 20px #294c3b15;z-index:30;display:grid;grid-template-columns:minmax(0,1fr) minmax(160px,.5fr);gap:5px 22px}
+.app-shell #player-details .player-page-controls{position:static;inset:auto;width:auto;height:auto;display:flex;flex-direction:column;gap:8px;overflow:visible;padding:12px 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;z-index:auto}
+.app-shell #player-details .player-song-label{margin:0 0 12px;color:#718269;font-size:11px}
+.app-shell #player-details .player-song-label strong{color:#344c37}
+.app-shell .song-page-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.app-shell .song-playback-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;white-space:nowrap}
+.persistent-player .dock-track{grid-column:1/-1;font-size:12px;color:#466245;display:flex;align-items:center;gap:6px;min-width:0}
+.persistent-player .dock-track button{font-size:inherit;max-width:65%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.persistent-player .dock-track small{margin-left:auto;white-space:nowrap}
+.app-shell .persistent-player .transport{margin:0;gap:8px}
+.app-shell .persistent-player .speed-control{padding:0;border:0}
+.app-shell .persistent-player .speed-control>div{display:none}
+.app-shell .persistent-player .loop-help{grid-column:1/-1;font-size:10px;line-height:1.3;color:#687a61;margin:2px 0}
+.app-shell .persistent-player .loop-controls{grid-column:1/-1;margin:0;gap:7px;flex-wrap:wrap}
+.app-shell .persistent-player .loop-controls button{min-height:36px}
+.app-shell .persistent-player .loop-controls .text-button{margin-left:0}
+.app-shell .persistent-player .queue-error,.app-shell .persistent-player>.notice,.app-shell .persistent-player .player>.error{position:fixed;bottom:185px;left:280px;right:25px;z-index:31;padding:10px;background:#fff4e9;max-height:110px;overflow:auto}
+#player-details{min-width:0}
+@media(max-width:1200px) and (min-width:681px){.app-shell .persistent-player .player-controls{left:220px}}
+@media(max-width:950px) and (min-width:681px){.app-shell .persistent-player .player-controls{left:190px}}
+@media(max-width:680px){
+ .app-shell.has-practice-player{--phone-player:252px;padding-bottom:252px}
+ .app-shell .persistent-player .player-controls{left:0;right:0;bottom:calc(var(--phone-nav) + env(safe-area-inset-bottom));height:252px;display:flex;flex-direction:column;gap:3px;padding:7px 12px;border-radius:0;overflow:auto}
+ .app-shell #player-details .player-page-controls{position:static;inset:auto;width:auto;height:auto;display:flex;flex-direction:column;gap:6px;overflow:visible;padding:12px 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;z-index:auto}
+ .app-shell #player-details .player-page-controls .dock-track{height:auto;min-height:44px;white-space:normal;overflow:visible}
+ .app-shell #player-details .player-page-controls .transport{height:auto;min-height:77px;flex-wrap:wrap}
+ .app-shell #player-details .player-page-controls .speed-control{height:auto;min-height:44px}
+ .app-shell #player-details .player-page-controls .speed-control>div{display:flex}
+ .app-shell #player-details .player-page-controls .loop-controls{height:auto;min-height:44px;flex-wrap:wrap}
+ .app-shell .persistent-player .dock-track{display:flex;font-size:11px;flex:none;height:44px;min-height:44px}
+ .app-shell .song-page-actions{align-items:stretch}
+ .app-shell .song-page-actions>*{width:100%}
+ .app-shell .persistent-player .transport{display:flex;flex-wrap:wrap;gap:5px;height:77px;flex:none}
+ .app-shell .persistent-player .transport .icon-button{width:44px;min-width:44px;height:44px}
+ .app-shell .persistent-player .play-button{width:44px;min-width:44px;height:44px}
+ .app-shell .persistent-player .timeline{flex-basis:100%;height:26px}
+ .app-shell .persistent-player .timeline input{height:12px;margin:0}
+ .app-shell .persistent-player .timeline>div{font-size:9px}
+ .app-shell .persistent-player .speed-control{display:grid;grid-template-columns:100px 1fr 38px;gap:6px;height:28px;align-items:center;flex:none}
+ .app-shell .persistent-player .speed-control input{grid-column:2;grid-row:1}
+ .app-shell .persistent-player .speed-control strong{grid-column:3;grid-row:1}
+ .app-shell .persistent-player .loop-help{font-size:10px;flex:none;min-height:26px}
+ .app-shell .persistent-player .loop-controls{height:44px;gap:4px;flex-wrap:nowrap;flex:none}
+ .app-shell .persistent-player .loop-controls button:not(.text-button){padding:6px;font-size:10px;min-width:0}
+ .app-shell .persistent-player .loop-controls button:last-child{flex:1.4}
+ .app-shell .persistent-player .queue-error,.app-shell .persistent-player>.notice,.app-shell .persistent-player .player>.error{left:12px;right:12px;bottom:calc(var(--phone-nav) + 252px + env(safe-area-inset-bottom));font-size:11px}
+}

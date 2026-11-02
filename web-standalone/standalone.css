@@ -1,0 +1,6 @@
+.web-standalone .distribution-notice{margin:0 0 18px;padding:14px 20px}
+.web-standalone .distribution-notice button,.web-standalone .distribution-notice a{margin:6px}
+.web-standalone{max-width:1280px}
+.web-standalone .sidebar{width:auto}
+.web-standalone .sidebar .brand{padding:24px}
+@media(min-width:681px){.web-standalone .main-shell{margin-left:0}.web-standalone .topbar{position:sticky;top:0}.web-standalone .phone-song-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}.web-standalone .practice-layout{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(340px,1fr);gap:24px}.web-standalone main{padding-bottom:220px}}

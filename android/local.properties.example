@@ -1,0 +1,5 @@
+# Copy to android\local.properties (ignored by Git), or set JANKO_DRIVE_API_KEY.
+# Restrict key to Google Drive API and this Android package + signing SHA-1.
+# Do not add the real key to source control.
+# janko.driveApiKey=REPLACE_WITH_RESTRICTED_DRIVE_API_KEY
+# sdk.dir=C\:\\Users\\YOUR_USER\\AppData\\Local\\Android\\Sdk

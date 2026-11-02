@@ -1,0 +1,61 @@
+name: Publish standalone app to GitHub Pages
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Fetch already signed APK and metadata from the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          # Initial push can precede the local publisher's release upload.
+          for attempt in {1..12}; do
+            if gh release download --pattern version.json --clobber &&
+               gh release download --pattern Janko-Muzykant-debug.apk --clobber; then
+              mv version.json release-version.json
+              mv Janko-Muzykant-debug.apk release.apk
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::Publish the matching signed APK + version.json release locally, then rerun this workflow."
+          exit 1
+      - name: Build static project site
+        env:
+          VITE_JANKO_GITHUB: 'true'
+          VITE_BASE_PATH: /${{ github.event.repository.name }}/
+          VITE_GOOGLE_DRIVE_API_KEY: ${{ secrets.VITE_GOOGLE_DRIVE_API_KEY || vars.VITE_GOOGLE_DRIVE_API_KEY }}
+          VITE_JANKO_DRIVE_PROXY_URL: ${{ vars.VITE_JANKO_DRIVE_PROXY_URL }}
+        run: npm run web:build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist-web
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

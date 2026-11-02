@@ -1,0 +1,8 @@
+.score-note-link{cursor:pointer}
+.score-note-link:focus{outline:2px solid #c56a41}
+.score-note-active{filter:drop-shadow(0 0 3px #cc784aaa)}
+.score-calibration{border:1px solid #d8dfce;border-radius:8px;padding:12px;margin:12px 0;font-size:12px}
+.score-calibration select{width:100%;margin:8px 0}
+.score-calibration button{margin:4px}
+.score-playback{min-width:0}
+.score-playback .rendered-score{overflow:auto}

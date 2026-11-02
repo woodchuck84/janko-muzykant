@@ -1,0 +1,47 @@
+{
+  "name": "janko-muzykant",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "vitest run",
+    "icons:generate": "node scripts\\generate-icons.mjs",
+    "web:build": "tsc -p tsconfig.android.json && vite build --config vite.standalone.config.ts && node scripts/package-web.mjs",
+    "web:dev": "wrangler pages dev dist-web --ip 127.0.0.1 --port 8788",
+    "web:test:e2e": "playwright test --config playwright.web.config.ts",
+    "web:deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\Deploy-Web.ps1",
+    "github:publish": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\Publish-GitHub.ps1",
+    "github:test:e2e": "playwright test --config playwright.github.config.ts",
+    "test:e2e": "playwright test",
+    "android:build": "tsc -p tsconfig.android.json && vite build --config vite.android.config.ts",
+    "android:sync": "npm run android:build && cap sync android",
+    "android:apk": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\Build-Android.ps1",
+    "android:test:e2e": "playwright test --config playwright.android.config.ts"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "lucide-react": "^0.468.0",
+    "opensheetmusicdisplay": "^1.9.7",
+    "pdfjs-dist": "^5.4.149",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "fflate": "^0.8.2"
+  },
+  "devDependencies": {
+    "wrangler": "^4.45.0",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vite-plugin-pwa": "^1.0.0",
+    "vitest": "^3.2.0",
+    "@playwright/test": "^1.52.0",
+    "@capacitor/cli": "^7.0.0",
+    "jsdom": "^26.1.0"
+  }
+}

@@ -1,0 +1,3 @@
+name = "janko-drive-public"
+main = "workers/drive.js"
+compatibility_date = "2026-10-01"
