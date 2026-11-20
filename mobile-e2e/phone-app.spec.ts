@@ -4,9 +4,37 @@ import path from 'node:path'
 
 const xml = readFileSync(path.join('backend', 'tests', 'fixtures', 'practice.musicxml'), 'utf8')
   .replaceAll(/<part-name>[^<]+<\/part-name>/g, '<part-name>Voice</part-name>')
-const pdf = readFileSync(path.join('data', 'cache', '1K4dwGq7LdZaxMbY2kvzri-3ODJ7AbVwd.pdf'))
-const audio = readFileSync(path.join('data', 'cache', '1YAk_fU0jbiUdAbUGBcGZEPTGK-g4cM09.m4a'))
-const calendar = readFileSync(path.join('data', 'cache', '1RUbElY5q773AMqRD-mg34iML73t0Zx3G.pdf'))
+function pdfFixture(text: string) {
+  const content = `BT /F1 14 Tf 50 700 Td (${text.replace(/[()\\]/g, '\\$&')}) Tj ET`
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    `<< /Length ${Buffer.byteLength(content)} >>\nstream\n${content}\nendstream`,
+  ]
+  let document = '%PDF-1.4\n'
+  const offsets = [0]
+  for (const [index, object] of objects.entries()) {
+    offsets.push(Buffer.byteLength(document))
+    document += `${index + 1} 0 obj\n${object}\nendobj\n`
+  }
+  const xref = Buffer.byteLength(document)
+  document += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n${offsets.slice(1).map(offset => `${String(offset).padStart(10, '0')} 00000 n \n`).join('')}trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`
+  return Buffer.from(document)
+}
+function audioFixture() {
+  const sampleRate = 22050, samples = sampleRate * 120, bytes = Buffer.alloc(44 + samples * 2)
+  bytes.write('RIFF', 0); bytes.writeUInt32LE(bytes.length - 8, 4); bytes.write('WAVEfmt ', 8)
+  bytes.writeUInt32LE(16, 16); bytes.writeUInt16LE(1, 20); bytes.writeUInt16LE(1, 22)
+  bytes.writeUInt32LE(sampleRate, 24); bytes.writeUInt32LE(sampleRate * 2, 28)
+  bytes.writeUInt16LE(2, 32); bytes.writeUInt16LE(16, 34); bytes.write('data', 36)
+  bytes.writeUInt32LE(samples * 2, 40)
+  for (let index = 0; index < samples; index++) bytes.writeInt16LE(Math.round(Math.sin(index * 2 * Math.PI * 440 / sampleRate) * 5000), 44 + index * 2)
+  return bytes
+}
+const pdf = pdfFixture('Piechota · próba'), audio = audioFixture()
+const calendar = pdfFixture('Kalendarz 2026_2027. Koncert: 20.09.25 oraz Msza: 18.10.25')
 const screenshotDir = process.env.JANKO_SCREENSHOTS
 const plugin = `
 export const ROOT_ID='root-folder';
@@ -25,7 +53,7 @@ initialize:async()=>({account:signed?account:null}),
 connect:async()=>{const code=sessionStorage.getItem('test-connect-error');if(code)throw Object.assign(Error('(Google status 10)'),{code});signed=true;sessionStorage.setItem('test-signed','yes');return{account}},
 verify:async()=>{if(sessionStorage.getItem('test-delay'))await new Promise(r=>setTimeout(r,1000));const code=sessionStorage.getItem('test-error');if(code)throw Object.assign(Error(code),{code});if(!signed)throw Error('Not connected');return{account}},
 list:async({folderId})=>({files:tree[folderId]||[]}),
-download:async({id})=>{if(sessionStorage.getItem('test-download-delay'))await new Promise(r=>setTimeout(r,1500));return{path:id,url:id==='pdf'?'/fixture.pdf':id==='calendar'?'/fixture-calendar.pdf':id==='audio'?'/fixture.m4a':'/fixture.musicxml'}},
+download:async({id})=>{if(sessionStorage.getItem('test-download-delay'))await new Promise(r=>setTimeout(r,1500));return{path:id,url:id==='pdf'?'/fixture.pdf':id==='calendar'?'/fixture-calendar.pdf':id==='audio'?'/fixture.wav':'/fixture.musicxml'}},
 readState:async()=>({state}),writeState:async value=>{state=value.state;localStorage.setItem('test-native-state.'+account.id,state)},
 saveGenerated:async({base64})=>({path:'private/generated/guide.wav',url:'data:audio/wav;base64,'+base64}),
 importXml:async()=>({id:'local-import',name:'Import.musicxml',mimeType:'application/xml',path:'xml',url:'/fixture.musicxml'}),
@@ -35,12 +63,12 @@ signOut:async()=>{signed=false;state=null;sessionStorage.removeItem('test-signed
 async function fixtures(page: Page) {
   await page.route('**/native.ts', route => route.fulfill({ contentType: 'application/javascript', body: plugin }))
   await page.route('**/fixture.pdf', route => route.fulfill({ contentType: 'application/pdf', body: pdf }))
-  await page.route('**/fixture.m4a', route => route.fulfill({ contentType: 'audio/mp4', body: audio }))
+  await page.route('**/fixture.wav', route => route.fulfill({ contentType: 'audio/wav', body: audio }))
   await page.route('**/fixture.musicxml', route => route.fulfill({ contentType: 'application/xml', body: xml }))
   await page.route('**/fixture-calendar.pdf', route => route.fulfill({ contentType: 'application/pdf', body: calendar }))
 }
 async function noOverflow(page: Page) {
-  for (const width of [360, 393, 430]) {
+  for (const width of [320, 360, 393, 430]) {
     await page.setViewportSize({ width, height: 852 })
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(width)
   }
@@ -49,7 +77,7 @@ test('APK checks the configured distribution site and links a newer installer', 
   await fixtures(page)
   await page.route('https://choir.example/version.json', route => route.fulfill({
     headers: { 'Access-Control-Allow-Origin': '*' }, json: {
-      webVersion: '0.1.8', apkVersion: '0.1.8', versionCode: 9, sha256: 'a'.repeat(64),
+      webVersion: '0.1.9', apkVersion: '0.1.9', versionCode: 10, sha256: 'a'.repeat(64),
       apkUrl: '/downloads/Janko-Muzykant-debug.apk',
     },
   }))
@@ -80,7 +108,7 @@ test('changing voice during a download cancels stale playback preparation', asyn
 test('APK update checks preserve the GitHub project path and accept the release asset URL', async ({ page }) => {
   await fixtures(page)
   await page.route('https://personal.example/janko/version.json', route => route.fulfill({ json: {
-    webVersion: '0.1.8', apkVersion: '0.1.8', versionCode: 9, sha256: 'a'.repeat(64),
+    webVersion: '0.1.9', apkVersion: '0.1.9', versionCode: 10, sha256: 'a'.repeat(64),
     apkUrl: 'https://github.com/personal-user/janko/releases/latest/download/Janko-Muzykant-debug.apk',
   } }))
   await page.goto('/')
@@ -104,7 +132,7 @@ test('bundled Android UI syncs authorized materials and renders/synthesizes loca
   await expect(page.locator('.score-panel canvas')).toBeVisible()
   await expect(page.locator('.persistent-player .player-controls')).toHaveCSS('position', 'fixed')
   const title = await page.locator('.persistent-player .dock-track').boundingBox()
-  const titleButton = await page.locator('.persistent-player .dock-track button').boundingBox()
+  const titleButton = await page.locator('.persistent-player .dock-track-name button').boundingBox()
   expect(titleButton!.height).toBeGreaterThanOrEqual(44)
   expect(titleButton!.y + titleButton!.height).toBeLessThanOrEqual(title!.y + title!.height + 1)
   await page.getByRole('button', { name: 'Postęp i czas ćwiczenia' }).click()
@@ -124,11 +152,17 @@ test('bundled Android UI syncs authorized materials and renders/synthesizes loca
   await noOverflow(page)
   await page.locator('footer').scrollIntoViewIfNeeded()
   const dock = await page.locator('.persistent-player .player-controls').boundingBox()
-  const nav = await page.getByRole('navigation', { name: 'Nawigacja telefonu' }).boundingBox()
-  expect(dock!.y + dock!.height).toBeLessThanOrEqual(nav!.y + 1)
-  await page.getByRole('button', { name: 'Wybierz mój głos' }).click()
-  await expect(page.getByRole('dialog')).toBeVisible()
-  await page.getByRole('dialog').getByRole('button', { name: 'Bas / baryton', exact: true }).click()
+  const navBounds = await page.getByRole('navigation', { name: 'Nawigacja telefonu' }).boundingBox()
+  expect(dock!.y + dock!.height).toBeLessThanOrEqual(navBounds!.y + 1)
+  const nav = page.getByRole('navigation', { name: 'Nawigacja telefonu' })
+  await nav.getByRole('button', { name: 'Utwory', exact: true }).click()
+  const queue = page.getByRole('dialog', { name: 'Utwory' })
+  await expect(queue.locator('.queue-row')).toHaveCount(1)
+  await queue.getByRole('button', { name: 'Zamknij listę utworów' }).click()
+  await page.locator('.persistent-player .queue-button').click()
+  await expect(queue).toBeVisible()
+  await queue.getByRole('button', { name: 'Zamknij listę utworów' }).click()
+  await expect(page.getByLabel('Mój głos', { exact: true })).toHaveValue('B')
   await expect(page.getByLabel('Mój głos', { exact: true })).toHaveValue('B')
   if (screenshotDir) await page.screenshot({ path: path.join(screenshotDir, 'android-app-score-fixture.png'), fullPage: true })
   await page.getByRole('button', { name: 'Analiza', exact: true }).click()
@@ -197,7 +231,7 @@ test('phone playback survives tabs/settings and repeats or stops at a missing vo
 tree['event-folder'].push({id:'rota-folder',name:'Rota',mimeType:F},{id:'missing-folder',name:'Bez basu',mimeType:F});
 tree['rota-folder']=[{id:'audio2',name:'B - Rota.m4a',mimeType:'audio/mp4'}];
 tree['missing-folder']=[{id:'s-only',name:'S - Bez basu.m4a',mimeType:'audio/mp4'}];
-const download=Drive.download; Drive.download=async options=>options.id==='audio2'?{path:'audio2',url:'/fixture.m4a'}:download(options);`
+const download=Drive.download; Drive.download=async options=>options.id==='audio2'?{path:'audio2',url:'/fixture.wav'}:download(options);`
   await page.route('**/native.ts', route => route.fulfill({ contentType: 'application/javascript', body: expanded }))
   await page.goto('/')
   await page.getByRole('button', { name: 'Połącz Google Drive', exact: true }).click()

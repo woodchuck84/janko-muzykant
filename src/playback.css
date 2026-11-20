@@ -21,29 +21,72 @@
 @media(max-width:1200px) and (min-width:681px){.app-shell .persistent-player .player-controls{left:220px}}
 @media(max-width:950px) and (min-width:681px){.app-shell .persistent-player .player-controls{left:190px}}
 @media(max-width:680px){
- .app-shell.has-practice-player{--phone-player:252px;padding-bottom:252px}
- .app-shell .persistent-player .player-controls{left:0;right:0;bottom:calc(var(--phone-nav) + env(safe-area-inset-bottom));height:252px;display:flex;flex-direction:column;gap:3px;padding:7px 12px;border-radius:0;overflow:auto}
+ .app-shell.has-practice-player{--phone-player:116px;padding-bottom:calc(var(--phone-nav) + var(--phone-player))}
+ .app-shell .persistent-player .player-controls{left:0;right:0;bottom:calc(var(--phone-nav) + env(safe-area-inset-bottom));height:var(--phone-player);display:flex;flex-direction:column;gap:0;padding:5px max(10px,env(safe-area-inset-right)) 5px max(10px,env(safe-area-inset-left));border-radius:0;overflow:hidden}
+ .app-shell .persistent-player .player-controls.expanded{height:252px;max-height:calc(100svh - var(--phone-nav) - env(safe-area-inset-bottom) - 12px);overflow-y:auto;gap:3px}
  .app-shell #player-details .player-page-controls{position:static;inset:auto;width:auto;height:auto;display:flex;flex-direction:column;gap:6px;overflow:visible;padding:12px 0;background:transparent;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;z-index:auto}
  .app-shell #player-details .player-page-controls .dock-track{height:auto;min-height:44px;white-space:normal;overflow:visible}
  .app-shell #player-details .player-page-controls .transport{height:auto;min-height:77px;flex-wrap:wrap}
  .app-shell #player-details .player-page-controls .speed-control{height:auto;min-height:44px}
  .app-shell #player-details .player-page-controls .speed-control>div{display:flex}
  .app-shell #player-details .player-page-controls .loop-controls{height:auto;min-height:44px;flex-wrap:wrap}
- .app-shell .persistent-player .dock-track{display:flex;font-size:11px;flex:none;height:44px;min-height:44px}
+ .app-shell .persistent-player .dock-track{display:flex;font-size:11px;flex:none;height:44px;min-height:44px;gap:4px;overflow:hidden}
+ .app-shell .persistent-player .dock-track-name{min-width:0;flex:1;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+ .app-shell .persistent-player .dock-track-name small{display:none}
+ .app-shell .persistent-player .dock-track .queue-button,.app-shell .persistent-player .dock-track .player-expand{display:inline-flex;align-items:center;justify-content:center;gap:4px;flex:none;min-width:44px;height:40px;padding:0 6px;border:1px solid #d5dfce;border-radius:7px;background:#f4f7ef;color:#355541;font-size:10px}
+ .app-shell .persistent-player .dock-track .player-expand{width:40px;min-width:40px;padding:0}
+ .app-shell .persistent-player .mini-progress{position:relative;display:block;flex:none;height:2px;margin:0 2px 3px;background:#dfe6db;border-radius:3px}
+ .app-shell .persistent-player .mini-progress span{display:block;height:100%;background:#78945f;border-radius:3px}
  .app-shell .song-page-actions{align-items:stretch}
  .app-shell .song-page-actions>*{width:100%}
- .app-shell .persistent-player .transport{display:flex;flex-wrap:wrap;gap:5px;height:77px;flex:none}
- .app-shell .persistent-player .transport .icon-button{width:44px;min-width:44px;height:44px}
- .app-shell .persistent-player .play-button{width:44px;min-width:44px;height:44px}
- .app-shell .persistent-player .timeline{flex-basis:100%;height:26px}
- .app-shell .persistent-player .timeline input{height:12px;margin:0}
+ .app-shell .persistent-player .transport{display:flex;flex-wrap:nowrap;justify-content:space-between;gap:2px;height:48px;min-height:48px;margin:0;flex:none}
+ .app-shell .persistent-player .transport .icon-button{width:44px;min-width:0;flex:1;height:44px;padding:0}
+ .app-shell .persistent-player .transport .seek-button{font-size:11px;font-weight:700}
+ .app-shell .persistent-player .transport .play-button{width:44px;min-width:44px;height:44px}
+ .app-shell .persistent-player .repeat-button.active{background:#e4eedc;color:#355b40}
+ .app-shell .persistent-player .timeline,.app-shell .persistent-player .speed-control,.app-shell .persistent-player .loop-help,.app-shell .persistent-player .loop-controls{display:none}
+ .app-shell .persistent-player .player-controls.expanded .timeline{display:block;flex:none;height:38px}
+ .app-shell .persistent-player .player-controls.expanded .timeline input{height:26px;margin:0}
+ .app-shell .persistent-player .player-controls.expanded .mini-progress{display:none}
+ .app-shell .persistent-player .player-controls.expanded .transport{height:auto;min-height:48px;flex-wrap:wrap;justify-content:center}
+ .app-shell .persistent-player .player-controls.expanded .timeline{flex-basis:100%}
  .app-shell .persistent-player .timeline>div{font-size:9px}
- .app-shell .persistent-player .speed-control{display:grid;grid-template-columns:100px 1fr 38px;gap:6px;height:28px;align-items:center;flex:none}
+ .app-shell .persistent-player .player-controls.expanded .speed-control{display:grid;grid-template-columns:100px 1fr 38px;gap:6px;height:32px;align-items:center;flex:none}
  .app-shell .persistent-player .speed-control input{grid-column:2;grid-row:1}
  .app-shell .persistent-player .speed-control strong{grid-column:3;grid-row:1}
- .app-shell .persistent-player .loop-help{font-size:10px;flex:none;min-height:26px}
- .app-shell .persistent-player .loop-controls{height:44px;gap:4px;flex-wrap:nowrap;flex:none}
+ .app-shell .persistent-player .player-controls.expanded .loop-help{display:block;font-size:10px;flex:none;min-height:26px;margin:0}
+ .app-shell .persistent-player .player-controls.expanded .loop-controls{display:flex;height:auto;min-height:44px;gap:4px;flex-wrap:nowrap;flex:none;margin:0}
  .app-shell .persistent-player .loop-controls button:not(.text-button){padding:6px;font-size:10px;min-width:0}
- .app-shell .persistent-player .loop-controls button:last-child{flex:1.4}
- .app-shell .persistent-player .queue-error,.app-shell .persistent-player>.notice,.app-shell .persistent-player .player>.error{left:12px;right:12px;bottom:calc(var(--phone-nav) + 252px + env(safe-area-inset-bottom));font-size:11px}
+ .app-shell .persistent-player .loop-controls .restart-loop-button{display:none}
+ .app-shell .persistent-player .queue-error,.app-shell .persistent-player>.notice,.app-shell .persistent-player .player>.error{left:12px;right:12px;bottom:calc(var(--phone-nav) + 116px + env(safe-area-inset-bottom));font-size:11px}
+}
+
+.app-shell .library-title .action-row .sync-button{background:#dce8b3;border-color:#96ab6c;color:#234332;font-weight:700}
+.app-shell .library-title .action-row .sync-button:hover{background:#cbdc96}
+.app-shell .dock-track-name{min-width:0;flex:1}
+.app-shell .dock-track-name small{display:inline-block;margin-left:8px;color:#7a8a70}
+.app-shell .queue-button{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:5px 10px;border:1px solid #d5dfce;border-radius:7px;background:#f4f7ef;color:#355541;font-size:10px;white-space:nowrap}
+.app-shell .player-expand{display:none}
+.app-shell .mini-progress{display:none}
+.app-shell .repeat-button.active{background:#e4eedc;color:#355b40}
+.app-shell .restart-loop-button{display:inline-flex;align-items:center;gap:5px}
+.app-shell .queue-backdrop{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;background:#233b2e55;backdrop-filter:blur(3px)}
+.app-shell .queue-dialog{width:min(560px,100%);max-height:min(80svh,720px);display:flex;flex-direction:column;padding:20px;box-shadow:0 10px 60px #17351d33}
+.app-shell .queue-dialog-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.app-shell .queue-dialog-heading h2{margin:0 0 5px}
+.app-shell .queue-dialog-heading .muted{margin:0;font-size:11px}
+.app-shell .queue-list{overflow-y:auto;overscroll-behavior:contain}
+.app-shell .queue-row{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:9px 5px;border-bottom:1px solid var(--line);text-align:left}
+.app-shell .queue-row:hover,.app-shell .queue-row.active{background:#eef3e8}
+.app-shell .queue-row>svg{color:#607d54}
+.app-shell .queue-number{width:28px;color:#8a9783;font-size:11px}
+.app-shell .queue-song{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.app-shell .queue-song strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:600}
+.app-shell .queue-song small{font-size:10px;color:#7d8b72}
+.app-shell .queue-empty{padding:18px 4px;margin:0}
+@media(max-width:680px){
+ .app-shell .queue-backdrop{align-items:flex-end;padding:0;background:#233b2e55}
+ .app-shell .queue-dialog{width:100%;max-height:min(72svh,620px);border-radius:14px 14px 0 0;padding:16px max(14px,env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left))}
+ .app-shell .queue-row{min-height:58px}
+ .app-shell .queue-song strong{font-size:13px}
 }

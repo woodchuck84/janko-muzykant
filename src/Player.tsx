@@ -1,5 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react'
-import { BookmarkPlus, Check, Headphones, Info, Pause, Play, Repeat2, RotateCcw, SlidersHorizontal, Volume2, SkipBack, SkipForward } from 'lucide-react'
+import { BookmarkPlus, Check, ChevronDown, ChevronUp, Headphones, Info, ListMusic, Pause, Play, Repeat2, RotateCcw, SlidersHorizontal, Volume2, SkipBack, SkipForward } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { preferredAudio } from './practice'
 import { claimAudio, publishPlayback } from './playbackClock'
@@ -21,6 +21,7 @@ export default function Player({ song, part, autoPlay = false, autoPlayToken = 0
   const [mixerHelp, setMixerHelp] = useState(false)
   const mixerHelpId = useId()
   const [playing, setPlaying] = useState(false)
+  const [expanded, setExpanded] = useState(false)
   const [busy, setBusy] = useState(false)
   const [speed, setSpeed] = useState(1)
   const [time, setTime] = useState(0)
@@ -203,23 +204,29 @@ export default function Player({ song, part, autoPlay = false, autoPlayToken = 0
   const controls = (onSongPage = false) => {
     const pageSong = onSongPage && queue?.pageSong?.id !== song.id ? queue?.pageSong : undefined
     const playLabel = pageSong ? `Odtwórz ${pageSong.name}` : playing ? 'Pauza' : 'Odtwórz'
-    return <div className={`player-controls${onSongPage ? ' player-page-controls' : ''}`} aria-label={onSongPage ? 'Sterowanie próbą na stronie utworu' : 'Sterowanie próbą'}>
-    <div className="dock-track">{queue ? <button className="text-button" onClick={queue.open}>{song.name}</button> : song.name} · {selected?.part ? `Linia ${selected.part}` : selected?.name ?? 'brak nagrania'} {queue && <small>{queue.label}</small>}</div>
+    return <div className={`player-controls${onSongPage ? ' player-page-controls' : ''}${!onSongPage && expanded ? ' expanded' : ''}`} aria-label={onSongPage ? 'Sterowanie próbą na stronie utworu' : 'Sterowanie próbą'}>
+    <div className="dock-track"><span className="dock-track-name">{queue ? <button className="text-button" onClick={queue.open}>{song.name}</button> : song.name} · {selected?.part ? `Linia ${selected.part}` : selected?.name ?? 'brak nagrania'} {queue && <small>{queue.label}</small>}</span>
+      {queue && <button className="queue-button" onClick={queue.open} aria-label={`Otwórz listę utworów (${queue.label})`}><ListMusic size={16}/> Utwory</button>}
+      {!onSongPage && <button className="player-expand" onClick={() => setExpanded(value => !value)} aria-expanded={expanded} aria-label={expanded ? 'Ukryj dodatkowe sterowanie' : 'Pokaż dodatkowe sterowanie'}>{expanded ? <ChevronDown size={18}/> : <ChevronUp size={18}/>}</button>}
+    </div>
+    {!onSongPage && <div className="mini-progress" aria-hidden="true"><span style={{ width: `${duration ? Math.min(100, time / duration * 100) : 0}%` }}/></div>}
     <div className="transport">
       {queue && <button className="icon-button" aria-label="Poprzedni utwór" disabled={!queue.previous || busy} onClick={() => queue.previous?.(playingRef.current)}><SkipBack size={18}/></button>}
-      <button className="icon-button" aria-label="Od początku" onClick={() => seek(loop && a !== null ? a : 0)}><RotateCcw size={20}/></button>
+      <button className="icon-button seek-button" aria-label="Przewiń 10 sekund wstecz" onClick={() => seek(time - 10)}>-10</button>
       <button className="play-button" onClick={() => pageSong ? queue?.playPageSong?.() : void play()} disabled={busy || !pageSong && !selected} aria-label={playLabel}>{pageSong ? <Play fill="currentColor" /> : playing ? <Pause fill="currentColor" /> : <Play fill="currentColor" />}</button>
+      <button className={`icon-button repeat-button${repeatSong ? ' active' : ''}`} aria-label="Cały utwór" aria-pressed={repeatSong} onClick={() => { setRepeatSong(value => !value); setLoop(false) }}><Repeat2 size={18}/></button>
+      <button className="icon-button seek-button" aria-label="Przewiń 10 sekund do przodu" onClick={() => seek(time + 10)}>+10</button>
       {queue && <button className="icon-button" aria-label="Następny utwór" disabled={!queue.next || busy} onClick={() => queue.next?.(playingRef.current)}><SkipForward size={18}/></button>}
       <div className="timeline"><input aria-label="Pozycja nagrania" type="range" min={0} max={duration || 1} step={0.05} value={Math.min(time, duration || 1)} onChange={e => seek(Number(e.target.value))}/><div><span>{busy ? 'Pobieranie…' : timeLabel(time)}</span><span>{timeLabel(duration)}</span></div></div>
     </div>
     <div className="speed-control"><label htmlFor={`speed-${onSongPage ? 'page' : 'dock'}`}>Tempo ćwiczenia</label><strong>{speed.toFixed(2)}×</strong><input id={`speed-${onSongPage ? 'page' : 'dock'}`} type="range" min={0.5} max={1.25} step={0.05} value={speed} onChange={e => setSpeed(Number(e.target.value))}/><div><span>Wolniej</span><button className="text-button" onClick={() => setSpeed(1)}>Oryginalne</button></div></div>
     <p className="loop-help">A = początek, B = koniec fragmentu do powtarzania. Ustaw je podczas słuchania. Pętla A–B zastępuje powtarzanie całego utworu.</p>
     <div className="loop-controls">
+      <button className="restart-loop-button" aria-label="Od początku" onClick={() => seek(loop && a !== null ? a : 0)}><RotateCcw size={14}/> Od początku</button>
       <Repeat2 size={18}/><button onClick={() => { setA(time); if (b !== null && b <= time) { setB(null); setLoop(false) } }}>A {a !== null ? timeLabel(a) : '—'}</button>
       <button onClick={() => { if (a === null || time <= a + 0.1) setError('Najpierw ustaw A, a następnie B co najmniej 0,1 sekundy później.'); else { setB(time); setError('') } }}>B {b !== null ? timeLabel(b) : '—'}</button>
       <button className={loop ? 'active' : ''} aria-pressed={loop} disabled={a === null || b === null} onClick={() => { setLoop(!loop); if (!loop) { setRepeatSong(false); if (a !== null) seek(a) } }}>{loop ? <Check size={14}/> : null} Pętla</button>
       <button className="text-button" aria-label="Usuń pętlę" onClick={() => { setA(null); setB(null); setLoop(false) }}>×</button>
-      <button className={repeatSong ? 'active' : ''} aria-pressed={repeatSong} onClick={() => { setRepeatSong(value => !value); setLoop(false) }}><Repeat2 size={14}/> Cały utwór</button>
     </div>
     </div>}
   const extras = <>

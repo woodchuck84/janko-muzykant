@@ -36,6 +36,7 @@ test('real voice recordings persist between screens; whole repeat and queue boun
   await player.getByRole('button', { name: 'Cały utwór', exact: true }).click()
   await player.locator('audio').evaluateAll(nodes => { const audio = nodes.find(audio => !audio.paused)!; audio.currentTime = audio.duration - 0.15 })
   await expect(player).toContainText('Rota')
+  await expect(page).toHaveURL(/view=planning/)
   await expect.poll(() => player.locator('audio').evaluateAll(nodes => nodes.some(audio => !audio.paused && audio.currentTime > 0.1))).toBe(true)
   await player.getByRole('button', { name: 'Następny utwór', exact: true }).click()
   await expect(player.getByRole('alert')).toContainText('brak nagrania Bas / baryton')
@@ -45,6 +46,29 @@ test('real voice recordings persist between screens; whole repeat and queue boun
   await player.getByRole('button', { name: 'Poprzedni utwór', exact: true }).click()
   await expect(player).toContainText('Rota')
   await expect(player.getByRole('alert')).toHaveCount(0)
+})
+
+test('song queue starts the selected part and automatic advance follows the open song page', async ({ page, request }) => {
+  const library = await (await request.get('/api/library')).json() as Library
+  const piechota = library.songs.find(song => song.name === 'Piechota')!
+  const rota = library.songs.find(song => song.name === 'Rota')!
+  const songs = [piechota, rota].map(song => ({ ...song, event_ids: ['fixture-event'] }))
+  await page.route('**/api/library', route => route.fulfill({ json: { ...library, songs, events: [{ id: 'fixture-event', name: 'Koncert' }] } }))
+  await page.goto(`/?song=${rota.id}`)
+  const player = page.locator('.persistent-player')
+  await player.getByRole('button', { name: /Otwórz listę utworów/ }).click()
+  const queue = page.getByRole('dialog', { name: 'Utwory' })
+  await expect(queue).toContainText('Cały repertuar')
+  await queue.getByRole('button', { name: /Piechota/ }).click()
+  await expect(page).toHaveURL(new RegExp(`song=${piechota.id}`))
+  await expect.poll(() => player.locator('audio').evaluateAll(nodes => nodes.some(audio => !audio.paused && audio.currentTime > 0.1))).toBe(true)
+  await player.locator('audio').evaluateAll(nodes => {
+    const audio = nodes.find(node => !node.paused)!
+    audio.currentTime = audio.duration - 0.1
+    audio.dispatchEvent(new Event('ended'))
+  })
+  await expect(page).toHaveURL(new RegExp(`song=${rota.id}`))
+  await expect(player).toContainText('Rota')
 })
 
 test('song page restores the full player module and controls the single persistent recording', async ({ page, request }) => {

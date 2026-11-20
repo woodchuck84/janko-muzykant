@@ -1,13 +1,13 @@
-# Janko Muzykant — hybrydowy Android 0.1.7 / APK
+# Janko Muzykant — hybrydowy Android 0.1.8 / APK
 
 Dystrybucja APK i Windows PWA z jednego linku: [DISTRIBUTION.md](DISTRIBUTION.md).
-Wersja 0.1.7 / kod 8 dodaje sprawdzanie `version.json` strony dystrybucji.
+Wersja 0.1.8 / kod 9 zachowuje dotychczasowy podpis APK i zawiera kompaktowy odtwarzacz mobilny.
 Dystrybutor ustawia `VITE_JANKO_DISTRIBUTION_URL` przed `npm run android:apk`;
 bez znanego adresu przyszłej strony kontrola aktualizacji nie działa automatycznie.
 Adres można też wpisać w aplikacji w „Aktualizacje APK”. Zachowany podpis.
 
 One-link APK/PWA distribution and owner setup: [DISTRIBUTION.md](DISTRIBUTION.md).
-Version 0.1.7 / code 8 adds update notices from the distribution site's `version.json`.
+Version 0.1.8 / code 9 preserves the existing APK signing identity and includes the compact mobile player.
 Set `VITE_JANKO_DISTRIBUTION_URL` before building to configure all APK recipients;
 without a known site address automatic checks cannot discover a future domain.
 The existing signing identity is preserved.
@@ -53,9 +53,9 @@ Przy powrocie do trybu publicznego dane konta są usuwane; dane publiczne pozost
 
 ### Paczka i aktualizacje
 
-Pakiet `com.jankomuzykant.app`, wersja **0.1.7 / kod 8**, Android 7.0 / API 24+.
+Pakiet `com.jankomuzykant.app`, wersja **0.1.8 / kod 9**, Android 7.0 / API 24+.
 Usługi Google Play są potrzebne do opcjonalnego logowania, nie do publicznego odczytu.
-Instalator: **`C:\Users\roman\OneDrive\AI_DEV\Janko Muzykant\Janko-Muzykant-debug.apk`**.
+Instalator po zbudowaniu: **`Janko-Muzykant-debug.apk`** w katalogu głównym checkoutu.
 Instaluj jako aktualizację bez odinstalowania poprzedniego APK — podpis jest ten sam.
 
 Budowanie wymaga Node 22+, JDK 21, SDK Android 36 i zaakceptowanych licencji:
@@ -227,8 +227,8 @@ zieloną kartę powitalną z zaakceptowanego mockupu (obecny kompaktowy web ją 
 | Ekran / funkcja | Telefon APK | Różnica względem lokalnego web |
 |---|---|---|
 | Biblioteka | Ten sam znak Janko, kolory, karta powitalna, statystyki, wyszukiwanie, filtr i znaczniki Nuty/Mój głos/Wolniej/Cały chór/Lokalnie | Natywny odczyt Drive i pamięć telefonu, zamiast FastAPI i dysku komputera |
-| Nawigacja / głos | Biblioteka, Plan i postępy, Mój głos, Ustawienia; wybór głosu w oknie; bez przewijania poziomego | Ustawienia telefonu mają informacje o natywnym dostępie; pasek systemowy i klawiatura Android nie zasłaniają interfejsu |
-| Nuty / nagrania | Wspólny PDF z gestami i wspólny dolny odtwarzacz, tempo, A–B, zakładki, mikser i pomoc na dotyk | Pierwsze nuty i zgodne nagrania pobierają się przy otwarciu utworu; „Zapisz offline” pobiera resztę |
+| Nawigacja / głos | Biblioteka, Plan i postępy, Utwory, Ustawienia; wybór głosu w nagłówku; bez przewijania poziomego | Utwory pokazują bieżący repertuar w kolejności programu; ustawienia telefonu mają informacje o natywnym dostępie |
+| Nuty / nagrania | Wspólny PDF z gestami i dwuwarstwowy dolny odtwarzacz; play/pauza, repeat, ±10 s i kolejka; po rozwinięciu tempo, A–B, zakładki, mikser i pomoc na dotyk | Pierwsze nuty i zgodne nagrania pobierają się przy otwarciu utworu; „Zapisz offline” pobiera resztę |
 | Analiza / generowanie | MusicXML lub MXL z Drive albo import z telefonu; wybór pięciolinii, potwierdzenie, zakres, trudność, oddechy, tekst, SVG/kursor i lokalny WAV | Kod TypeScript na telefonie zastępuje Python/music21; to uproszczona analiza, nie identyczny silnik. Ograniczenia rytmiczne i repetycji podano powyżej |
 | PDF → MusicXML | Nieobsługiwane w samodzielnym APK | Audiveris wymaga środowiska komputerowego; samo opakowanie HTML w APK nie przenosi tej usługi |
 | Coaching | Wspólny ekran mikrofonu, nagrywania, porównania, fraz, rozgrzewek i pamięci | Wzorzec nutowy wymaga lokalnego MusicXML/WAV; nagrania są prywatne w telefonie |
@@ -323,6 +323,18 @@ Verified an in-place 0.1.5 → 0.1.6 APK update, the circular launcher icon and 
 startup on an Android 16/API 36 emulator. Square/rounded masks and monochrome
 were inspected in generated previews, not vendor launchers or themed home icons
 on physical phones.
+
+### Compact mobile player in 0.1.8 / version code 9
+
+The shared web/APK player now collapses to a two-row dock above phone navigation.
+Play/pause, whole-track repeat, ±10-second seeks, previous/next and the queue remain
+available; expanding it reveals the position slider, speed and A–B controls.
+The bottom **Utwory** navigation item and the player's queue button open the same
+list, following the selected event's saved program order or the full library when
+no event is selected. Choosing a song starts its selected voice recording and
+opens its page; missing recordings remain explicit. Automatic track advancement
+updates the page only when the user is already viewing a song, not while browsing
+the library, plan or settings.
 
 ### New in 0.1.4 / version code 5
 

@@ -6,10 +6,10 @@ import { PART_LABELS, type Part, type Song } from './types'
 import './playback.css'
 
 export interface PlaybackRequest { id: string; play: boolean; revision: number }
-export default function QueuePlayer({ songs, pool, part, request, prepare, detailId, detailSongId, onOpenSong, onCurrent, onPlayingChange }: {
+export default function QueuePlayer({ songs, pool, part, request, prepare, detailId, detailSongId, onOpenSong, onOpenQueue, isSongPage, onCurrent, onPlayingChange }: {
   songs: Song[]; pool: string[]; part: Part; request: PlaybackRequest | null
   prepare?: (song: Song, part: Part) => Promise<Song>; detailId: string | null; detailSongId?: string | null
-  onOpenSong: (id: string) => void; onCurrent?: (id: string) => void; onPlayingChange?: (id: string, playing: boolean) => void
+  onOpenSong: (id: string, preserveTab?: boolean) => void; onOpenQueue: () => void; isSongPage: boolean; onCurrent?: (id: string) => void; onPlayingChange?: (id: string, playing: boolean) => void
 }) {
   const [current, setCurrent] = useState<Song | null>(null)
   const [autoplay, setAutoplay] = useState(false)
@@ -62,9 +62,10 @@ export default function QueuePlayer({ songs, pool, part, request, prepare, detai
   }, [songs])
   const index = current ? pool.indexOf(current.id) : -1
   const detailSong = detailSongId ? songs.find(song => song.id === detailSongId) : undefined
-  function move(offset: number, play: boolean) {
+  function move(offset: number, play: boolean, updateSongPage = false) {
     const next = index + offset
     if (index < 0 || next < 0 || next >= pool.length) return
+    if (updateSongPage) onOpenSong(pool[next], true)
     void select(pool[next], play)
   }
   if (!current && !loading && !error) return null
@@ -72,11 +73,11 @@ export default function QueuePlayer({ songs, pool, part, request, prepare, detai
     {loading && <p role="status" className="notice">Przygotowanie nagrania…</p>}
     {error && <p role="alert" className="error queue-error">{error}</p>}
     {current && <Player key={current.id} song={current} part={part} autoPlay={autoplay} autoPlayToken={playToken}
-      detailId={detailId} onComplete={() => move(1, true)} onPlayingChange={playing => onPlayingChange?.(current.id, playing)}
+      detailId={detailId} onComplete={() => move(1, true, isSongPage)} onPlayingChange={playing => onPlayingChange?.(current.id, playing)}
       queue={{ previous: index > 0 ? playing => move(-1, playing) : undefined,
         next: index >= 0 && index < pool.length - 1 ? playing => move(1, playing) : undefined,
         label: index < 0 ? 'Utwór poza wybraną pulą' : `${index + 1} / ${pool.length}`,
-        open: () => onOpenSong(current.id), pageSong: detailSong,
+        open: onOpenQueue, pageSong: detailSong,
         playPageSong: detailSong ? () => { void select(detailSong.id, true) } : undefined }}/> }
   </div>
 }

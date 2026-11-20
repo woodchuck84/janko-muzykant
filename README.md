@@ -47,8 +47,9 @@ storage, separately for guest mode and each Google account. See the bilingual
 [Android guide](docs/ANDROID.md) for installing the debug test APK, required
 optional Google Android OAuth/API-key setup, signing fingerprints and privacy rules.
 
-Version 0.1.7 matches the approved phone design: branded library/cards/badges,
-four-item navigation and a fixed touch-friendly player above the bottom menu.
+The phone design uses branded library/cards/badges, four-item navigation, and
+a compact two-layer player above the bottom menu. The local Android build is
+version 0.1.8 / code 9 and preserves the existing debug signing identity.
 It supports PDF/audio practice, mixer, loops/bookmarks,
 MusicXML staff/voice selection, analysis/rendering/instrumental WAV synthesis,
 microphone coaching, private recordings, warm-ups and personal planning.
@@ -66,7 +67,7 @@ The installer is copied directly into this project folder as
 **`Janko-Muzykant-debug.apk`** by `Build-Android.ps1` after a successful build.
 On Windows, native build outputs are outside OneDrive under
 `%LOCALAPPDATA%\JankoMuzykant\android-build\<checkout-hash>\app\outputs\apk\debug\`.
-Version 0.1.7 / code 8 preserves the prior debug signature for in-place updates and keeps
+Version 0.1.8 / code 9 preserves the prior debug signature for in-place updates and keeps
 login optional. **Default public access needs no Google Cloud setup**. Optional
 OAuth or the API-key alternative requires one-time setup by the APK distributor,
 not individual choir members. Public folder HTML is not a stable API; format
@@ -114,12 +115,18 @@ small first sync, or **Synchronizuj Drive** to read all events.
 
 The phone layout activates automatically at widths up to 680 px; desktop stays
 unchanged. The library becomes a compact **single-column list**. Bottom navigation
-opens **Biblioteka**, **Plan i postępy**, **Mój głos**, and **Ustawienia**.
+opens **Biblioteka**, **Plan i postępy**, **Utwory**, and **Ustawienia**; the voice
+selector remains available in the header.
 On a song page, **Postęp i czas ćwiczenia** expands the readiness/timer controls.
-The three practice tabs remain visible as you scroll.
+The **Utwory** queue follows the active event's program order, or the full library
+when no event is selected; choosing a song opens its page and starts its selected
+part, with an explicit missing-recording message if unavailable. The three
+practice tabs remain visible as you scroll.
 
-In **Nuty i nagrania**, a compact player above the bottom navigation keeps
-play/pause, position, speed and **A / B / Pętla** available while reading.
+In **Nuty i nagrania**, a compact two-layer player above the bottom navigation
+keeps play/pause, whole-track repeat, ±10-second seeks and previous/next available.
+Expand it for position, speed and **A / B / Pętla** controls. Automatic track
+advancement updates the open song page, while other screens are left undisturbed.
 The score fits the screen width. Spread two fingers to zoom (50–250%); pan inside
 the score when enlarged. At 100% or smaller, swipe horizontally to change page.
 **↔** fits the score to width again; page buttons remain available. Mixer sliders

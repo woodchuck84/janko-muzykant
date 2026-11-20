@@ -2,7 +2,7 @@
 .voice-menu>.primary,.voice-menu>.secondary{display:flex;width:100%;margin:10px 0;justify-content:space-between}
 
 @media(max-width:680px){
-  :root{--phone-nav:64px;--phone-player:178px}
+  :root{--phone-nav:64px;--phone-player:116px}
   html{scroll-padding-bottom:calc(var(--phone-nav) + env(safe-area-inset-bottom) + 20px)}
   body{padding-bottom:calc(var(--phone-nav) + env(safe-area-inset-bottom))}
   .app-shell.has-practice-player{padding-bottom:var(--phone-player)}

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { createRoot } from 'react-dom/client'
-import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, Check, ChevronDown, CloudDownload, FileMusic, Headphones, LibraryBig, Music2, Search, Settings2, ShieldCheck, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, BookOpen, CalendarDays, ChevronDown, CloudDownload, FileMusic, Headphones, LibraryBig, ListMusic, Music2, Search, Settings2, ShieldCheck, X } from 'lucide-react'
 import ScorePlayback from '../src/ScorePlayback'
 import { claimAudio, playAudio } from '../src/playbackClock'
 import { useAudioPosition } from '../src/useAudioPosition'
@@ -181,7 +181,7 @@ function App() {
   const [playback, setPlayback] = useState<PlaybackRequest | null>(null)
   const [playingSongId, setPlayingSongId] = useState('')
   const [playbackPlaying, setPlaybackPlaying] = useState(false)
-  const [voiceMenu, setVoiceMenu] = useState(false)
+  const [queueOpen, setQueueOpen] = useState(false)
   const [fileProblems, setFileProblems] = useState<Record<string, string>>({})
   const writes = useRef<Promise<void>>(Promise.resolve()), active = useRef(true)
   const library = state.library, song = library?.songs.find(item => item.id === selected)
@@ -189,13 +189,13 @@ function App() {
   const accountRef = useRef(account); accountRef.current = account
   useEffect(() => { if (song && !playback) requestPlayback(song.id, false) }, [song?.id, playback])
   useEffect(() => {
-    if (!voiceMenu) return
+    if (!queueOpen) return
     const previous = document.activeElement
     const dialog = document.querySelector<HTMLElement>('[role=dialog]')
     const buttons = () => Array.from(dialog?.querySelectorAll<HTMLButtonElement>('button') ?? [])
     buttons()[0]?.focus()
     function keydown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setVoiceMenu(false)
+      if (event.key === 'Escape') setQueueOpen(false)
       if (event.key !== 'Tab') return
       const items = buttons()
       if (event.shiftKey && document.activeElement === items[0]) { event.preventDefault(); items.at(-1)?.focus() }
@@ -203,10 +203,10 @@ function App() {
     }
     document.addEventListener('keydown', keydown)
     return () => { document.removeEventListener('keydown', keydown); if (previous instanceof HTMLElement) previous.focus() }
-  }, [voiceMenu])
-  function openSong(id: string) {
+  }, [queueOpen])
+  function openSong(id: string, preserveTab = false) {
     if (!playback) requestPlayback(id, false)
-    setSelected(id); setScreen('library'); setTab('practice'); setError(''); setNotice('')
+    setSelected(id); setScreen('library'); if (!preserveTab) setTab('practice'); setError(''); setNotice('')
     window.scrollTo(0, 0)
   }
   useEffect(() => {
@@ -397,6 +397,8 @@ function App() {
   const cachedSong = song ? { ...song, files: song.files.filter(file => file.cached) } : null
   const eventSongs = library?.songs.filter(song => !event || song.event_ids.includes(event)) ?? []
   const order = eventPool(library?.songs ?? [], event, state.programs[event])
+  const playlist = order.map(id => library?.songs.find(item => item.id === id)).filter((item): item is Song => !!item)
+  const playlistLabel = event ? library?.events.find(item => item.id === event)?.name ?? 'Wybrane wydarzenie' : 'Cały repertuar'
   const currentProgram = library?.songs.find(song => song.id === order[programIndex])
   const history = practiceHistory(state.practiceLog, state.part)
   function requestPlayback(id: string, play = true) {
@@ -457,7 +459,7 @@ function App() {
         </> : <>
           <section className="hero"><div><div className="eyebrow"><span className="live-dot"/> TWOJE MIEJSCE W CHÓRZE</div><h1>Dobry śpiew zaczyna się<br/>od spokojnej próby.</h1></div></section>
           <div className="library-stats"><div><strong>{library?.songs.length ?? 0}</strong><span>utworów w bibliotece</span></div><div><strong>{ownAudio}</strong><span>z nagraniem Twojego głosu</span></div><div><strong>{library?.events.length ?? 0}</strong><span>wydarzeń i repertuarów</span></div></div>
-          <div className="library-title"><div><span className="eyebrow">REPERTUAR</span><h2>Co dziś zaśpiewasz?</h2></div><div className="action-row"><button className="secondary" onClick={() => { setScreen('plan'); window.scrollTo(0, 0) }}><CalendarDays size={17}/> Plan i postępy</button><button className="secondary" aria-label="Synchronizuj Drive (tylko odczyt)" disabled={!!busy || offline} onClick={() => void sync()}><CloudDownload size={17}/> Synchronizuj Drive</button></div></div>
+          <div className="library-title"><div><span className="eyebrow">REPERTUAR</span><h2>Co dziś zaśpiewasz?</h2></div><div className="action-row"><button className="secondary" onClick={() => { setScreen('plan'); window.scrollTo(0, 0) }}><CalendarDays size={17}/> Plan i postępy</button><button className="primary sync-button" aria-label="Synchronizuj Drive (tylko odczyt)" disabled={!!busy || offline} onClick={() => void sync()}><CloudDownload size={17}/> Synchronizuj Drive</button></div></div>
           <div className="filters"><label className="search"><Search size={18}/><input id="song-search" type="search" aria-label="Szukaj" value={search} onChange={e => setSearch(e.target.value)} placeholder="Szukaj utworu…"/></label><select aria-label="Filtr wydarzeń" value={event} onChange={e => setEvent(e.target.value)}><option value="">Wszystkie wydarzenia</option>{library?.events.map(event => <option key={event.id} value={event.id}>{event.name}</option>)}</select></div>
           <div className="result-line"><span>{filtered.length} utworów · {event ? library?.events.find(item => item.id === event)?.name : 'Cały repertuar'}</span><span>{library?.last_sync ? `Odczyt: ${new Date(library.last_sync).toLocaleDateString('pl')}` : 'Dostęp wyłącznie do odczytu'}</span></div>
           {!library?.songs.length && <section className="panel empty"><LibraryBig size={42}/><h2>Biblioteka chóru</h2><p>{account.email} · 0 utworów. Wybierz synchronizację, aby wczytać publiczny repertuar.</p></section>}
@@ -469,14 +471,22 @@ function App() {
       </>}
       <footer><span><ShieldCheck size={14}/> Google Drive · tylko odczyt</span><span>Twoja pracownia na telefonie.</span></footer>
       {ready && account && !blocked && <QueuePlayer key={account.id} songs={library?.songs ?? []} pool={order} part={state.part} request={playback}
-        prepare={preparePlayback} onOpenSong={openSong}
+        prepare={preparePlayback} onOpenSong={openSong} onOpenQueue={() => setQueueOpen(true)} isSongPage={!!song && screen === 'library'}
         onCurrent={id => { setPlayingSongId(id); setPlaybackPlaying(false) }} onPlayingChange={(_id, playing) => setPlaybackPlaying(playing)}
         detailId={song && screen === 'library' && tab === 'practice' ? 'player-details' : null}
         detailSongId={song && screen === 'library' && tab === 'practice' ? song.id : null}/>}
     </main>
     </div>
-    {ready && account && !blocked && <nav className="phone-nav" aria-label="Nawigacja telefonu"><button onClick={() => { setScreen('library'); setSelected(''); window.scrollTo(0, 0) }} aria-current={screen === 'library' && !song ? 'page' : undefined}><LibraryBig size={21}/><span>Biblioteka</span></button><button aria-label="Plan" onClick={() => { setScreen('plan'); setSelected(''); window.scrollTo(0, 0) }} aria-current={screen === 'plan' ? 'page' : undefined}><CalendarDays size={21}/><span>Plan i postępy</span></button><button aria-label="Wybierz mój głos" onClick={() => setVoiceMenu(true)}><Headphones size={21}/><span>Mój głos · {state.part}</span></button><button onClick={() => { setScreen('settings'); setSelected(''); window.scrollTo(0, 0) }} aria-current={screen === 'settings' ? 'page' : undefined}><Settings2 size={21}/><span>Ustawienia</span></button></nav>}
-    {voiceMenu && <div className="modal-backdrop" onClick={() => setVoiceMenu(false)}><section className="panel modal voice-menu" role="dialog" aria-modal="true" aria-labelledby="voice-title" onClick={event => event.stopPropagation()}><button className="modal-close icon-button" aria-label="Zamknij wybór głosu" onClick={() => setVoiceMenu(false)}><X/></button><h2 id="voice-title">Twój głos w chórze</h2><p>Zapamiętamy go dla wszystkich utworów na tym urządzeniu, osobno dla każdego konta.</p>{PARTS.map(part => <button key={part} className={part === state.part ? 'primary' : 'secondary'} aria-pressed={part === state.part} onClick={() => { update({ part }); setVoiceMenu(false) }}>{PART_LABELS[part]}{part === state.part && <Check size={18}/>}</button>)}</section></div>}
+    {ready && account && !blocked && <nav className="phone-nav" aria-label="Nawigacja telefonu"><button onClick={() => { setScreen('library'); setSelected(''); window.scrollTo(0, 0) }} aria-current={screen === 'library' && !song ? 'page' : undefined}><LibraryBig size={21}/><span>Biblioteka</span></button><button aria-label="Plan" onClick={() => { setScreen('plan'); setSelected(''); window.scrollTo(0, 0) }} aria-current={screen === 'plan' ? 'page' : undefined}><CalendarDays size={21}/><span>Plan i postępy</span></button><button aria-current={queueOpen ? 'page' : undefined} aria-haspopup="dialog" aria-expanded={queueOpen} onClick={() => setQueueOpen(true)}><ListMusic size={21}/><span>Utwory</span></button><button onClick={() => { setScreen('settings'); setSelected(''); window.scrollTo(0, 0) }} aria-current={screen === 'settings' ? 'page' : undefined}><Settings2 size={21}/><span>Ustawienia</span></button></nav>}
+    {queueOpen && <div className="queue-backdrop" onClick={() => setQueueOpen(false)}><section className="panel queue-dialog" role="dialog" aria-modal="true" aria-labelledby="queue-title" onClick={event => event.stopPropagation()}>
+      <div className="queue-dialog-heading"><div><h2 id="queue-title">Utwory</h2><p className="muted">{playlistLabel} · kolejność programu · {playlist.length} {playlist.length === 1 ? 'utwór' : 'utworów'}</p></div><button className="icon-button" aria-label="Zamknij listę utworów" onClick={() => setQueueOpen(false)}><X size={20}/></button></div>
+      <div className="queue-list">{playlist.length ? playlist.map((item, index) => {
+        const audio = preferredAudio(item, state.part), current = item.id === playingSongId
+        return <button className={`queue-row${current ? ' active' : ''}`} key={item.id} aria-current={current ? 'true' : undefined} onClick={() => { openSong(item.id); requestPlayback(item.id, true); setQueueOpen(false) }}>
+          <span className="queue-number">{String(index + 1).padStart(2, '0')}</span><span className="queue-song"><strong>{item.name}</strong><small>{current ? playbackPlaying ? 'Odtwarzany teraz' : 'Aktualny utwór' : audio ? `${PART_LABELS[state.part]} · nagranie` : `Brak nagrania: ${PART_LABELS[state.part]}`}</small></span><ArrowRight size={17}/>
+        </button>
+      }) : <p className="muted queue-empty">Brak utworów w wybranym repertuarze.</p>}</div>
+    </section></div>}
   </div>
 }
 createRoot(document.getElementById('root')!).render(<App/>)

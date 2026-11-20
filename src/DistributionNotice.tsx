@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { validApkUrl } from './distribution'
-export const DISTRIBUTION_VERSION = '0.1.7'
-export const ANDROID_VERSION_CODE = 8
+export const DISTRIBUTION_VERSION = '0.1.8'
+export const ANDROID_VERSION_CODE = 9
 interface Release { webVersion: string; apkVersion: string; versionCode: number; sha256: string; apkUrl: string }
 declare global { interface Window { jankoPwaUpdate?: () => void } }
 function site(value: string) {

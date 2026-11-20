@@ -6,7 +6,7 @@ const screenshots = process.env.JANKO_SCREENSHOTS
 
 async function fits(page: Page) {
   const original = page.viewportSize()!
-  for (const width of new Set([original.width, 360, 430])) {
+  for (const width of new Set([original.width, 320, 360, 430])) {
     await page.setViewportSize({ width, height: original.height })
     await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
     expect(await page.evaluate(() => document.documentElement.scrollWidth), `overflow at ${width}px`).toBeLessThanOrEqual(width)
@@ -17,7 +17,7 @@ async function fits(page: Page) {
   test.describe('phone workflows', () => {
     test.use({ actionTimeout: 20000 })
 
-    test('compact library, bottom navigation, voice selection and install assets', async ({ page, request }) => {
+    test('compact library, song list, voice selection and install assets', async ({ page, request }) => {
       const name = test.info().project.name
       await page.goto('/')
       const card = page.locator('.song-card').first()
@@ -29,9 +29,16 @@ async function fits(page: Page) {
       await fits(page)
       const nav = page.getByRole('navigation', { name: 'Nawigacja telefonu' })
       await expect(nav).toBeVisible()
-      await nav.getByRole('button', { name: 'Wybierz mój głos' }).tap()
-      await page.getByRole('dialog').getByRole('button', { name: 'Bas / baryton', exact: true }).tap()
+      await page.getByLabel('Mój głos', { exact: true }).selectOption('B')
       await expect(page.getByLabel('Mój głos', { exact: true })).toHaveValue('B')
+      await nav.getByRole('button', { name: 'Utwory', exact: true }).tap()
+      const queue = page.getByRole('dialog', { name: 'Utwory' })
+      await expect(queue).toBeVisible()
+      await expect(queue.locator('.queue-row').first()).toBeVisible()
+      await expect(queue).toContainText('Cały repertuar')
+      await queue.locator('.queue-row').filter({ hasText: 'nagranie' }).first().tap()
+      await expect(page).toHaveURL(/song=/)
+      await expect.poll(() => page.locator('.persistent-player audio').evaluateAll(nodes => nodes.some(audio => !audio.paused && audio.currentTime > 0))).toBe(true)
       if (screenshots) await page.screenshot({ path: path.join(screenshots, `phone-${name}-library.png`) })
       await nav.getByRole('button', { name: 'Ustawienia', exact: true }).tap()
       await expect(page.getByRole('heading', { name: 'Zainstaluj na telefonie' })).toBeVisible()
@@ -89,7 +96,24 @@ async function fits(page: Page) {
       await expect(page.locator('.score-toolbar')).toContainText('100%')
       await page.getByRole('button', { name: 'Odtwórz', exact: true }).tap()
       await expect.poll(() => page.locator('.player audio').evaluateAll(nodes => nodes.some(node => !node.paused && node.currentTime > 0))).toBe(true)
-      await page.getByRole('button', { name: 'Pauza', exact: true }).tap()
+      const dock = page.locator('.persistent-player')
+      const dockControls = dock.locator('.player-controls')
+      await expect(dockControls).toHaveCSS('height', '116px')
+      await dockControls.getByRole('button', { name: 'Cały utwór' }).tap()
+      await expect(dockControls.getByRole('button', { name: 'Cały utwór' })).toHaveAttribute('aria-pressed', 'true')
+      await dockControls.getByRole('button', { name: 'Pokaż dodatkowe sterowanie' }).tap()
+      await expect(dockControls.getByLabel('Pozycja nagrania')).toBeVisible()
+      await dockControls.getByRole('button', { name: 'Ukryj dodatkowe sterowanie' }).tap()
+      await dockControls.getByRole('button', { name: 'Pauza', exact: true }).tap()
+      const audio = dock.locator('audio').first()
+      await audio.evaluate(async element => new Promise<void>(resolve => {
+        element.addEventListener('seeked', () => resolve(), { once: true })
+        element.currentTime = 20
+      }))
+      await dockControls.getByRole('button', { name: 'Przewiń 10 sekund wstecz' }).tap()
+      await expect.poll(() => audio.evaluate(element => element.currentTime)).toBeCloseTo(10, 0)
+      await dockControls.getByRole('button', { name: 'Przewiń 10 sekund do przodu' }).tap()
+      await expect.poll(() => audio.evaluate(element => element.currentTime)).toBeCloseTo(20, 0)
       await page.getByLabel('Pozycja nagrania').fill('5')
       await page.getByRole('button', { name: /^A —$/ }).tap()
       await page.getByLabel('Pozycja nagrania').fill('8')
